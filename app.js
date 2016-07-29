@@ -18,9 +18,16 @@ urlTool.getUrlObj('/secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('//secure/Dashboard3.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current'); */
 
+
 //发送请求
 var launch = function(resourceUrl){
-	request(resourceUrl, function(error, response, body) {
+	var options = {
+		url: resourceUrl,
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36'
+		}
+	};
+	request(options, function(error, response, body) {
 		if(!error && response.statusCode == 200) {
 			
 			let arr = urlTool.getUrl(body);
@@ -51,8 +58,15 @@ var downloadFile = function(urlObj){
 		fileName = urlObj.fileName;
 	
 	mkdirp(fullDir, function(err) {
+		var options = {
+			url: fullUrl,
+			headers: {
+				'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36'
+			}
+		};
+		
 		request
-			.get(fullUrl)
+			.get(options)
 			.on('error', function(err) {
 				console.log(err)
 			})
