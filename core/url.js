@@ -76,7 +76,7 @@ exports.getUrlObj = (str, targetDir) => {
 		let search = currentUrlObj.search ? currentUrlObj.search : '',
 			tmpStr = '';
 			
-		if( currentUrlObj.protocol ) return str;
+		if( currentUrlObj.protocol ) return str.replace(/\\|\'/g, '');
 			
 		if( isFile ){
 			tmpStr = pathnameArr.join('/') + '/' + lastPathname + search;
@@ -94,4 +94,18 @@ exports.getUrlObj = (str, targetDir) => {
 	})();
 
 	return obj;
+}
+
+exports.indexOf = (urlArr, src)=>{
+	for (var i = urlArr.length - 1; i >= 0; i--) {
+		if( urlArr[i] === src ){
+			return i
+		}
+		
+	}
+	return -1
+}
+
+exports.delSame = (urlArr, src)=>{
+	
 }

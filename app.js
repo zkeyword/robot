@@ -19,6 +19,11 @@ urlTool.getUrlObj('//secure/Dashboard3.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current'); */
 
 
+
+var responseArr = [],
+	iss = 0
+
+
 //发送请求
 var launch = function(resourceUrl){
 	var options = {
@@ -30,10 +35,42 @@ var launch = function(resourceUrl){
 	request(options, function(error, response, body) {
 		if(!error && response.statusCode == 200) {
 			
-			let arr = urlTool.getUrl(body);
+			let arr    = urlTool.getUrl(body),
+				resObj = urlTool.getUrlObj( resourceUrl );
+			
+			//console.log( urlTool.indexOf(responseArr, resObj.fullUrl) )
+			if( urlTool.indexOf(responseArr, resObj.fullUrl) !== -1 ) return;
+				
+			if( resObj.fileType !== 'css' ){
+				responseArr.push(resourceUrl);
+				downloadHtml(resObj, body);
+				console.log('获得：'+ resourceUrl)
+			}
+			
+			for(let i = 0, len = arr.length; i<len; i++){
+				let urlObj   = urlTool.getUrlObj(arr[i]);
+		
+				if( urlTool.indexOf(responseArr, urlObj.fullUrl) === -1 ){
+					if( urlObj.fileName ){
+						responseArr.push(urlObj.fullUrl);
+						downloadFile(urlObj);
+						console.log('获得：'+ urlObj.fullUrl)
+						if( urlObj.fileType === 'css' ){
+							launch(urlObj.fullUrl);
+						}
+					}else if( config.isDownAll && urlObj.isCurrentHost ){
+						launch(urlObj.fullUrl);
+					}
+				}
+			}
+
+			/* 
+			return;
 				
 			//写入主文件
-			downloadHtml(urlTool.getUrlObj( resourceUrl ), body);
+			if( resObj.fileType !== 'css' ){
+				downloadHtml(resObj, body);
+			}
 			
 			//查找并下载资源
 			for(let i = 0, len = arr.length; i<len; i++){
@@ -41,12 +78,15 @@ var launch = function(resourceUrl){
 					
 				if( urlObj.fileName ){
 					downloadFile(urlObj);
+					if( urlObj.fileType === 'css' ){
+						launch(urlObj.fullUrl);
+					}
 				}else if( config.isDownAll && urlObj.isCurrentHost ){
 					
 					//待建立资源表
 					//launch(urlObj.fullUrl);
 				}
-			}
+			} */
 		}
 	});
 }
