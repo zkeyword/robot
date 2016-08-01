@@ -2,7 +2,8 @@ var url     = require('url'),
 	config  = require('../config');
 
 exports.getUrl = (html)=>{
-	let a = [];
+	let a    = [],
+		self = this;
 	
 	if(!html){
 		return a;
@@ -25,7 +26,7 @@ exports.getUrl = (html)=>{
 			aRet = aRegex[i].exec(html);
 			if(aRet){
 				let str = aRet[1].trim();
-				if( str.indexOf('javascript') === -1 ) a.push(str);
+				if( str.indexOf('javascript') === -1 && str !== '#' ) a.push(self.getUrlObj(str).fullUrl);
 			}
 		}while(aRet);
 	}
@@ -33,17 +34,22 @@ exports.getUrl = (html)=>{
 	return a;
 }
 
-exports.getUrlObj = (str, targetDir) => {
+exports.getUrlObj = (str, parentSrc) => {
 	let obj           = {},
 		staticReg     = /\.(jpg|gif|png|css|js|ico|html|htm)($|\?)/g,
 		absoluteReg   = /^\/.*/,
+		relativeReg   = /^\.\./,
 		uniqueReg     = /\/{2,}/g, // TODO //www.baidu.com  这种类型未匹配
 		targetUrlObj  = url.parse(config.targetUrl)
 		currentUrlObj = url.parse(str),
-		pathname      =  currentUrlObj.pathname ? currentUrlObj.pathname.replace(uniqueReg, '/') : '',
+		pathname      = currentUrlObj.pathname ? currentUrlObj.pathname.replace(uniqueReg, '/') : '',
 		pathnameArr   = pathname.split('/'),
 		lastPathname  = pathnameArr[pathnameArr.length - 1],
-		isFile        = /\./.test(lastPathname);
+		isFile        = /\./.test(lastPathname),
+		isRelative    = relativeReg.test(str),
+		parentObj     = url.parse(parentSrc ? parentSrc : config.targetUrl);
+		
+	console.log(parentObj)
 
 	obj.isStaticFile = false;
 		
@@ -67,6 +73,8 @@ exports.getUrlObj = (str, targetDir) => {
 		
 		tmpStr = arr.join('/');
 		
+		if( isRelative ) 
+		
 		if( currentUrlObj.protocol || absoluteReg.test(tmpStr) ) return tmpStr;
 		
 		return targetUrlObj.pathname + tmpStr;
@@ -75,13 +83,15 @@ exports.getUrlObj = (str, targetDir) => {
 	obj.fullUrl = (()=>{
 		let search = currentUrlObj.search ? currentUrlObj.search : '',
 			tmpStr = '';
-			
-		if( currentUrlObj.protocol ) return str.replace(/\\|\'/g, '');
-			
+		
 		if( isFile ){
 			tmpStr = pathnameArr.join('/') + '/' + lastPathname + search;
 		}else{
-			tmpStr = pathname + search;
+			if( search ){
+				tmpStr = pathname + search;
+			}else{
+				tmpStr = /\/$/.test(pathname) ? pathname : pathname + '/'; //自动补齐 /
+			}
 		}
 		if( absoluteReg.test(tmpStr) ) return targetUrlObj.protocol + '//' + targetUrlObj.host + tmpStr;
 		
@@ -101,11 +111,17 @@ exports.indexOf = (urlArr, src)=>{
 		if( urlArr[i] === src ){
 			return i
 		}
-		
 	}
 	return -1
 }
 
-exports.delSame = (urlArr, src)=>{
-	
+exports.unique = (urlArr)=>{
+    var result = [], hash = {};
+    for (var i = 0, elem; (elem = urlArr[i]) != null; i++) {
+        if (!hash[elem]) {
+            result.push(elem);
+            hash[elem] = true;
+        }
+    }
+    return result;
 }

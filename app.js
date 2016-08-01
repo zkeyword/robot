@@ -19,6 +19,14 @@ urlTool.getUrlObj('//secure/Dashboard3.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current'); */
 
 
+urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/wordpress/')
+urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/wordpress')
+urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/')
+urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000')
+urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current')
+return;
+
+
 
 var responseArr = [],
 	iss = 0
@@ -37,24 +45,23 @@ var launch = function(resourceUrl){
 			
 			let arr    = urlTool.getUrl(body),
 				resObj = urlTool.getUrlObj( resourceUrl );
-			
-			//console.log( urlTool.indexOf(responseArr, resObj.fullUrl) )
-			if( urlTool.indexOf(responseArr, resObj.fullUrl) !== -1 ) return;
-				
+	
 			if( resObj.fileType !== 'css' ){
 				responseArr.push(resourceUrl);
-				downloadHtml(resObj, body);
 				console.log('获得：'+ resourceUrl)
+				downloadHtml(resObj, body);
 			}
-			
+	
+			arr = urlTool.unique(arr);
+
 			for(let i = 0, len = arr.length; i<len; i++){
-				let urlObj   = urlTool.getUrlObj(arr[i]);
+				let urlObj   = urlTool.getUrlObj(arr[i], resourceUrl);
 		
 				if( urlTool.indexOf(responseArr, urlObj.fullUrl) === -1 ){
 					if( urlObj.fileName ){
 						responseArr.push(urlObj.fullUrl);
+						console.log('获得：'+ urlObj.fullUrl);
 						downloadFile(urlObj);
-						console.log('获得：'+ urlObj.fullUrl)
 						if( urlObj.fileType === 'css' ){
 							launch(urlObj.fullUrl);
 						}
@@ -63,30 +70,6 @@ var launch = function(resourceUrl){
 					}
 				}
 			}
-
-			/* 
-			return;
-				
-			//写入主文件
-			if( resObj.fileType !== 'css' ){
-				downloadHtml(resObj, body);
-			}
-			
-			//查找并下载资源
-			for(let i = 0, len = arr.length; i<len; i++){
-				let urlObj   = urlTool.getUrlObj(arr[i]);
-					
-				if( urlObj.fileName ){
-					downloadFile(urlObj);
-					if( urlObj.fileType === 'css' ){
-						launch(urlObj.fullUrl);
-					}
-				}else if( config.isDownAll && urlObj.isCurrentHost ){
-					
-					//待建立资源表
-					//launch(urlObj.fullUrl);
-				}
-			} */
 		}
 	});
 }
@@ -94,7 +77,7 @@ var launch = function(resourceUrl){
 //下载方法
 var downloadFile = function(urlObj){	
 	var fullUrl  = urlObj.fullUrl, 
-		fullDir  = config.targetDir + urlObj.fullDir, 
+		fullDir  = config.targetDir + '/' + config.targetName  + '/' + urlObj.fullDir, 
 		fileName = urlObj.fileName;
 	
 	mkdirp(fullDir, function(err) {
@@ -104,6 +87,15 @@ var downloadFile = function(urlObj){
 				'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36'
 			}
 		};
+		
+		request(options, function(error, response, body) {
+			fs.writeFile( fullDir + "/" + fileName, body, function (err) {
+				if (err) throw err;
+				console.log('保存成功：'+ fullUrl)
+			});
+		});
+		
+		return ;
 		
 		request
 			.get(options)
@@ -124,15 +116,14 @@ var downloadFile = function(urlObj){
 
 var downloadHtml = function(urlObj, body){
 	var fullUrl  = urlObj.fullUrl, 
-		fullDir  = config.targetDir + urlObj.fullDir, 
+		fullDir  = config.targetDir + '/' + config.targetName  + '/'  + urlObj.fullDir, 
 		fileName = urlObj.fileName;
 	
 	mkdirp(fullDir, function(err) {
 		fs.writeFile( fullDir + '/index.html', body, function (err) {
 			if (err) throw err;
+			console.log('保存成功：'+ fullUrl)
 		});
-			
-		console.log('正在下载：'+ fullUrl)
 	});
 }
 
@@ -145,7 +136,7 @@ process.on('uncaughtException', function (err) {
 });
 
 //创建目录
-mkdirp(config.targetDir, function(err) {
+mkdirp(config.targetDir + '/' + config.targetName  + '/', function(err) {
     if(err){
         console.log(err);
     }
