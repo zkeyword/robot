@@ -49,7 +49,8 @@ exports.getUrlObj = (str, parentSrc) => {
 		isRelative    = relativeReg.test(str),
 		parentObj     = url.parse(parentSrc ? parentSrc : config.targetUrl);
 		
-	console.log(parentObj)
+	//console.log(parentObj, pathnameArr)
+	
 
 	obj.isStaticFile = false;
 		
@@ -102,6 +103,8 @@ exports.getUrlObj = (str, parentSrc) => {
 		if( currentUrlObj.protocol && currentUrlObj.hostname !== targetUrlObj.hostname ) return false;
 		return true;
 	})();
+	
+	console.log(obj.fullDir, obj.fullUrl)
 
 	return obj;
 }

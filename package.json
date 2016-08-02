@@ -17,6 +17,7 @@
     "mkdirp": "*",
     "request": "*",
 	"gulp": "*",
-	"gulp-nodemon": "*"
+	"gulp-nodemon": "*",
+	"urijs": "*"
   }
 }

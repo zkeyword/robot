@@ -9,21 +9,40 @@ var process = require('process');
 var config  = require('./config');
 var urlTool = require('./core/url');
 
-/* urlTool.getUrlObj('secure?hl=zh-CN&tab=wT#en/zh-CN/current');
+var URI = require('urijs');
+var url = require('url')
+
+console.log(url.parse('//secure.com/index/dd.html?xsd=sf1212'))
+console.log( URI('//secure.com/index/dd.html?xsd=sf1212') );
+console.log( URI('secure/') );
+console.log( URI('secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
+console.log( URI('/secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
+console.log( URI('//secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
+console.log( URI('http://127.0.0.1:8000/wordpress/secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
+console.log( URI('secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current') );
+console.log( URI('/secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current') );
+console.log( URI('//secure/Dashboard3.jspa?hl=zh-CN&tab=wT#en/zh-CN/current') );
+console.log( URI('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current') );
+
+return;
+
+urlTool.getUrlObj('secure');
+urlTool.getUrlObj('secure/');
+urlTool.getUrlObj('secure?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('/secure?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('//secure?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('http://127.0.0.1:8000/wordpress/secure?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('/secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
 urlTool.getUrlObj('//secure/Dashboard3.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current'); */
+urlTool.getUrlObj('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current');
 
 
-urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/wordpress/')
+/*urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/wordpress/')
 urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/wordpress')
 urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/')
 urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000')
-urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current')
+urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current') */
 return;
 
 
