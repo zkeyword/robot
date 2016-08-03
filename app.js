@@ -12,44 +12,9 @@ var urlTool = require('./core/url');
 var URI = require('urijs');
 var url = require('url')
 
-console.log(url.parse('//secure.com/index/dd.html?xsd=sf1212'))
-console.log( URI('//secure.com/index/dd.html?xsd=sf1212') );
-console.log( URI('secure/') );
-console.log( URI('secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
-console.log( URI('/secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
-console.log( URI('//secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
-console.log( URI('http://127.0.0.1:8000/wordpress/secure?hl=zh-CN&tab=wT#en/zh-CN/current') );
-console.log( URI('secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current') );
-console.log( URI('/secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current') );
-console.log( URI('//secure/Dashboard3.jspa?hl=zh-CN&tab=wT#en/zh-CN/current') );
-console.log( URI('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current') );
 
-return;
-
-urlTool.getUrlObj('secure');
-urlTool.getUrlObj('secure/');
-urlTool.getUrlObj('secure?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('/secure?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('//secure?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('http://127.0.0.1:8000/wordpress/secure?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('/secure/Dashboard2.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('//secure/Dashboard3.jspa?hl=zh-CN&tab=wT#en/zh-CN/current');
-urlTool.getUrlObj('http://127.0.0.2:8000/wordpress/secure/Dashboard1.jpg?hl=zh-CN&tab=wT#en/zh-CN/current');
-
-
-/*urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/wordpress/')
-urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/wordpress')
-urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000/')
-urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current', 'http://127.0.0.2:8000')
-urlTool.getUrlObj('../secure?hl=zh-CN&tab=wT#en/zh-CN/current') */
-return;
-
-
-
-var responseArr = [],
-	iss = 0
-
+var responseArr    = [],
+	responseTxtReg = /(css|html|htm)($|\?)/
 
 //发送请求
 var launch = function(resourceUrl){
@@ -61,33 +26,34 @@ var launch = function(resourceUrl){
 	};
 	request(options, function(error, response, body) {
 		if(!error && response.statusCode == 200) {
-			
-			let arr    = urlTool.getUrl(body),
+
+			let arr    = urlTool.getUrl(body);
 				resObj = urlTool.getUrlObj( resourceUrl );
-	
-			if( resObj.fileType !== 'css' ){
-				responseArr.push(resourceUrl);
-				console.log('获得：'+ resourceUrl)
+			
+			/* 添加资源 */
+			responseArr.push(resourceUrl);
+			if( !resObj.fileName ){
 				downloadHtml(resObj, body);
 			}
-	
-			arr = urlTool.unique(arr);
 
+			/* 去重 */
+			responseArr = urlTool.unique(responseArr);
+			arr         = urlTool.unique(arr);
+			
 			for(let i = 0, len = arr.length; i<len; i++){
-				let urlObj   = urlTool.getUrlObj(arr[i], resourceUrl);
-		
-				if( urlTool.indexOf(responseArr, urlObj.fullUrl) === -1 ){
-					if( urlObj.fileName ){
-						responseArr.push(urlObj.fullUrl);
-						console.log('获得：'+ urlObj.fullUrl);
-						downloadFile(urlObj);
-						if( urlObj.fileType === 'css' ){
-							launch(urlObj.fullUrl);
-						}
-					}else if( config.isDownAll && urlObj.isCurrentHost ){
+				let urlObj  = urlTool.getUrlObj(arr[i], resourceUrl)
+					fullUrl = urlObj.fullUrl;
+
+				if( urlTool.indexOf(responseArr, fullUrl) === -1 ){
+					if( responseTxtReg.test(urlObj.fileName) || ( config.isDownAll && urlObj.isCurrentHost  ) ){
 						launch(urlObj.fullUrl);
 					}
 				}
+				
+				console.log('获得：'+ fullUrl);
+				responseArr.push(fullUrl);
+				responseArr = urlTool.unique(responseArr);
+				downloadFile(urlObj);
 			}
 		}
 	});

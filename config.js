@@ -1,6 +1,6 @@
 module.exports = {
 	targetName: 'test',
-	targetUrl: 'http://127.0.0.1:3000',
+	targetUrl: 'http://www.baidu.com',
 	targetDir: './download',
 	isDownAll: true
 }
