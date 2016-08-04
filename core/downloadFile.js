@@ -1,11 +1,14 @@
-var mkdirp  = require('mkdirp'),
+var fs      = require('fs')
+	mkdirp  = require('mkdirp'),
 	request = require("request"),
-	config  = require('./config');
+	config  = require('../config');
 
 exports.index = (urlObj, html) => {	
 	var fullUrl  = urlObj.fullUrl, 
-		fullDir  = config.targetDir + '/' + config.targetName  + '/' + urlObj.fullDir, 
+		fullDir  = config.targetDir + '/' + config.targetName  + '/' + urlObj.hostname + '/' + urlObj.fullDir, 
 		fileName = urlObj.fileName;
+		
+	console.log( fullDir )
 		
 	mkdirp(fullDir, function(err) {
 		var options = {

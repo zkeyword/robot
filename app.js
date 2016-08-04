@@ -5,7 +5,7 @@ var process = require('process');
 /* 依赖模块 */
 var config       = require('./config'),
 	urlTool      = require('./core/url'),
-	downloadFile = require('./core/downfile').index,
+	downloadFile = require('./core/downloadFile').index,
 	responseArr  = [],
 	responseTag  = 0;
 
@@ -36,7 +36,7 @@ var launch = function(resourceUrl){
 			for(let i = 0, len = arr.length; i<len; i++){
 				let urlObj  = urlTool.getUrlObj(arr[i], resourceUrl),
 					fullUrl = urlObj.fullUrl;
-
+					
 				if( urlTool.indexOf(responseArr, fullUrl) === -1 ){
 					if( config.isDownAll && (urlObj.isCurrentHost || urlObj.fileType === 'css') ){
 						launch(urlObj.fullUrl);

@@ -103,6 +103,10 @@ exports.getUrlObj = (str, parentSrc) => {
 		return fullURI.directory(true) + ( isFile ? '' : fullURI.filename() )
 	})();
 	
+	obj.hostname = (()=>{
+		return URI(obj.fullUrl).hostname();
+	})();
+	
 	obj.isCurrentHost = (()=>{
 		let fullURI = URI(obj.fullUrl);
 		
