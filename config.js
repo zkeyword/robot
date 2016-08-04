@@ -1,6 +1,6 @@
 module.exports = {
 	targetName: 'test',
-	targetUrl: 'http://www.baidu.com',
+	targetUrl: 'http://baidu.com',
 	targetDir: './download',
 	isDownAll: true
 }

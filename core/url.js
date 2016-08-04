@@ -25,32 +25,33 @@ exports.getUrl = (html)=>{
 	aRet;
 	
 	html = html.replace(/[\n\r\t]/gm, '');
-
+	html = html.replace(/\\\"|\\\'/g, '');
+	html = html.replace(/\\\//g, '/');
 	
 	for(let i = 0; i < aRegex.length; i++){
 		do{
 			aRet = aRegex[i].exec(html);
 			if(aRet){
 				let str = aRet[1].trim();
-				if( str && str.indexOf('javascript') === -1 && str !== '#' ) a.push(self.getUrlObj(str).fullUrl);
-				
+				if( str && str.indexOf('javascript') === -1 && str !== '#' && str.indexOf('data:') === -1 ){
+					a.push(self.getUrlObj(str.replace(/\'|\"/g, '')).fullUrl);
+				}
 			}
 		}while(aRet);
 	}
-	
-	return a;
+	return self.unique(a);
 }
 
 exports.getUrlObj = (str, parentSrc) => {
 	let obj         = {},
-		staticReg   = /\.(jpg|gif|png|ico|css|js|html|htm)($|\?)/g,
+		staticReg   = /\.(jpg|gif|png|ico|css|js|shtml|html|htm)($|\?)/g,
 		absoluteReg = /^\/.*/,
 		targetURI   = URI(config.targetUrl),
-		currentURI  = URI(str),
+		currentURI  = URI( str.replace(/#.*/g, '') ),  //过滤 url hash
 		filename    = currentURI.filename(),
-		isFile      = /\./.test(filename),
+		isFile      = /\.(bmp|jpg|gif|png|jpeg|svg|ico|css|js|html|htm|php|jsp|aspx|asp|xml)$/.test(filename),
 		relativeNum = str.split('../').length - 1;
-	
+
 	obj.isStaticFile = false;
 	
 	if( isFile ){
@@ -67,9 +68,13 @@ exports.getUrlObj = (str, parentSrc) => {
 	}
 
 	obj.fullUrl = (() => {
+		
 		if( currentURI.hostname() ){
-			return currentURI.protocol() ? str : 'http:' + str;
+			return currentURI.protocol() ? currentURI.href() : 'http:' + currentURI.href();
 		}
+		
+		if( targetURI.pathname(true) === '/' ) return targetURI.href();
+
 		let currentProtocol = (currentURI.protocol() ? currentURI.protocol() : 'http:'),
 			targetPost      = targetURI.port(),
 			targetAllHost   = currentProtocol + '//' + targetURI.hostname() + (targetPost ? ':' + targetPost : ''),
@@ -92,11 +97,10 @@ exports.getUrlObj = (str, parentSrc) => {
 		return targetAllHost + (absoluteReg.test(str) ? '': targetURI.pathname(true)) + currentPathname + currentURI.search();
 	})();
 	
-	
 	obj.fullDir = (() => {
 		let fullURI = URI(obj.fullUrl);
 		
-		return fullURI.directory(true)
+		return fullURI.directory(true) + ( isFile ? '' : fullURI.filename() )
 	})();
 	
 	obj.isCurrentHost = (()=>{
@@ -106,7 +110,7 @@ exports.getUrlObj = (str, parentSrc) => {
 		
 		return true;
 	})();
-	
+		
 	return obj;
 }
 
