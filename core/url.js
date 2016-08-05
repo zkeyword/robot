@@ -49,7 +49,7 @@ exports.getUrlObj = (str, parentSrc) => {
 		targetURI   = URI(config.targetUrl),
 		currentURI  = URI( str.replace(/#.*/g, '') ),  //过滤 url hash
 		filename    = currentURI.filename(),
-		isFile      = /\.(bmp|jpg|gif|png|jpeg|svg|ico|css|js|html|htm|php|jsp|aspx|asp|xml)$/.test(filename),
+		isFile      = /\.(bmp|jpg|gif|png|jpeg|ico|svg|ttf|woff|css|js|html|htm|php|jsp|aspx|asp|xml)$/.test(filename),
 		relativeNum = str.split('../').length - 1;
 
 	obj.isStaticFile = false;
@@ -69,32 +69,32 @@ exports.getUrlObj = (str, parentSrc) => {
 
 	obj.fullUrl = (() => {
 		
+		let currentProtocol = (currentURI.protocol() ? currentURI.protocol() + ':' : 'http:'),
+			targetPost      = targetURI.port(),
+			targetAllHost   = currentProtocol + '//' + targetURI.hostname() + (targetPost ? ':' + targetPost : '')
+			currentPathname = currentURI.pathname(true);
+			
+		currentPathname = ( isFile || /\/$/.test( currentPathname ) ) ? currentPathname : currentPathname + '/'; //自动补全 /
+		
 		if( currentURI.hostname() ){
-			return currentURI.protocol() ? currentURI.href() : 'http:' + currentURI.href();
+			return targetAllHost + currentPathname + currentURI.search();
 		}
 		
 		if( targetURI.pathname(true) === '/' ) return targetURI.href();
 
-		let currentProtocol = (currentURI.protocol() ? currentURI.protocol() : 'http:'),
-			targetPost      = targetURI.port(),
-			targetAllHost   = currentProtocol + '//' + targetURI.hostname() + (targetPost ? ':' + targetPost : ''),
-			currentPathname = currentURI.pathname(true);
-		
-		currentPathname = ( isFile || /\/$/.test( currentPathname ) ) ? currentPathname : currentPathname + '/'; //自动补全 /
-		
 		if( relativeNum ) {
 			let currentURI  = URI( currentPathname.replace(/\.\.\//g, '') ),
 				currentPath = currentURI.directory(true),
 				parentURI   = URI( parentSrc ? parentSrc : config.targetUrl ),
-				parentDir   = parentURI.directory(true),
-				parentArr   = parentDir.split('/');
+				parentPath  = parentURI.pathname(true),
+				parentArr   = parentPath.split('/');
 				
-			parentArr.splice(parentArr.length-2, relativeNum);
-			
-			return targetAllHost + (currentPath ? '/' + currentPath + '/': '/') + currentURI.filename() + currentURI.search();
+			parentArr.splice(parentArr.length-1, relativeNum);
+
+			return targetAllHost + parentArr.join('/') + (currentPath ? '/' + currentPath + '/': '/') + currentURI.filename() + currentURI.search();
 		}
 
-		return targetAllHost + (absoluteReg.test(str) ? '': targetURI.pathname(true)) + currentPathname + currentURI.search();
+		return targetAllHost + (absoluteReg.test(str) ? '': ( isFile ? targetURI.directory() + '/' : targetURI.pathname(true) ) ) + currentPathname + currentURI.search();
 	})();
 	
 	obj.fullDir = (() => {

@@ -8,8 +8,6 @@ exports.index = (urlObj, html) => {
 		fullDir  = config.targetDir + '/' + config.targetName  + '/' + urlObj.hostname + '/' + urlObj.fullDir, 
 		fileName = urlObj.fileName;
 		
-	console.log( fullDir )
-		
 	mkdirp(fullDir, function(err) {
 		var options = {
 			url: fullUrl,
@@ -23,19 +21,19 @@ exports.index = (urlObj, html) => {
 				if( fileName ){
 					fs.writeFile( fullDir + "/" + fileName, body, function (err) {
 						if (err) throw err;
-						console.log('保存成功：'+ fullUrl)
+						//console.log('保存成功：'+ fullUrl)
 					});
 				}else{
 					fs.writeFile( fullDir + '/index.html', body, function (err) {
 						if (err) throw err;
-						console.log('保存成功：'+ fullUrl)
+						//console.log('保存成功：'+ fullUrl)
 					});
 				}
 			});
 		}else{
 			fs.writeFile( fullDir + '/index.html', html, function (err) {
 				if (err) throw err;
-				console.log('保存成功：'+ fullUrl)
+				//console.log('保存成功：'+ fullUrl)
 			});
 		}
 	});

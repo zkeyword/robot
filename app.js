@@ -21,7 +21,7 @@ var launch = function(resourceUrl){
 		if(!error && response.statusCode == 200) {
 
 			let arr    = urlTool.getUrl(body);
-				resObj = urlTool.getUrlObj( resourceUrl );
+				resObj = urlTool.getUrlObj( resourceUrl );	
 				
 			/* 添加资源 */
 			responseArr.push(resObj.fullUrl);
@@ -39,6 +39,7 @@ var launch = function(resourceUrl){
 					
 				if( urlTool.indexOf(responseArr, fullUrl) === -1 ){
 					if( config.isDownAll && (urlObj.isCurrentHost || urlObj.fileType === 'css') ){
+						//console.log( urlObj.fullUrl )
 						launch(urlObj.fullUrl);
 					}
 					if( urlObj.isStaticFile || urlObj.isCurrentHost ){
